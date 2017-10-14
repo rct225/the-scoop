@@ -33,7 +33,8 @@ const routes = {
     'POST': createComment
   },
   '/comments/:id': {
-    'PUT': updateComment
+    'PUT': updateComment,
+    'DELETE': deleteComment
   },
   '/comments/:id/upvote': {
 
@@ -238,8 +239,6 @@ function createComment(url, request) {
   const requestComment = request.body && request.body.comment;
   const response = {};
 
-  //console.log(requestComment);
-
   if (requestComment && requestComment.body && requestComment.username && requestComment.articleId &&
       database.users[requestComment.username] &&
       database.articles[requestComment.articleId] ) {
@@ -256,7 +255,6 @@ function createComment(url, request) {
     database.comments[comment.id] = comment;
     database.users[comment.username].commentIds.push(comment.id);
     database.articles[comment.articleId].commentIds.push(comment.id);
-    // database.articles[comment.articleId].articleIds.push(comment.id);
 
     response.body = {comment: comment};
     response.status = 201;
@@ -287,6 +285,28 @@ function updateComment(url, request) {
 
   return response;
 
+}
+
+function deleteComment(url, request) {
+  const id = Number(url.split('/').filter(segment => segment)[1]);
+  const savedComment = database.comments[id];
+  response = {};
+
+  if (!id || !savedComment) {
+    response.status = 404;
+  } else {
+    database.comments[id] = null;
+
+    const userCommentIds = database.users[savedComment.username].commentIds;
+    userCommentIds.splice(userCommentIds.indexOf(id),1);
+
+    const articleCommentIds = database.articles[savedComment.articleId].commentIds;
+    articleCommentIds.splice(articleCommentIds.indexOf(id),1);
+
+    response.status = 204;
+  }
+
+  return response;
 }
 
 function upvote(item, username) {
