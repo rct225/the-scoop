@@ -1,4 +1,8 @@
 // database is let instead of const to allow us to modify it in test.js
+const yaml = require('js-yaml');
+const fs = require('fs');
+const databaseFile = './scoop-db.yml';
+
 let database = {
   users: {},
   articles: {},
@@ -367,6 +371,37 @@ function downvote(item, username) {
   return item;
 }
 
+function loadDatabase() {
+  try {
+    database = yaml.safeLoad(fs.readFileSync(databaseFile, 'utf8'));
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      console.log("Attempting to create DB file");
+      try {
+        fs.writeFileSync(databaseFile, '#Scoop Database YAML file' + yaml.safeDump(database), {flag: 'w+'}, (err) => {
+          if (err) throw err;
+          console.log('The file has been created');
+          loadDatabase();
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
+}
+
+function saveDatabase() {
+  try {
+    let databaseToYaml = yaml.safeDump(database);
+    fs.writeFile(databaseFile, databaseToYaml, (err) => {
+      if (err) throw err;
+      console.log('Writing to database file');
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
 // Write all code above this line.
 
 const http = require('http');

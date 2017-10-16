@@ -1,5 +1,5 @@
 process.env.PORT = 8080;
-process.env.IS_TEST_MODE = true;
+process.env.IS_TEST_MODE = false;
 
 const rewire = require('rewire');
 const serverModule = rewire('../server.js');

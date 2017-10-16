@@ -1,0 +1,5 @@
+#Scoop Database YAML fileusers: {}
+articles: {}
+nextArticleId: 1
+comments: {}
+nextCommentId: 1
